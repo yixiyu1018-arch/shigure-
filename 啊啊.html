@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>recall.</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#0b0b12;color:#c9c9d4;font-family:-apple-system,"PingFang SC","Noto Sans SC",sans-serif;
+  user-select:none;overflow:hidden}
+#app{max-width:520px;margin:0 auto;height:100dvh;display:flex;flex-direction:column}
+#top{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#101018;
+  border-bottom:1px solid #1c1c28;position:relative;z-index:3}
+#ava{width:38px;height:38px;border-radius:50%;background:#2a2040;flex:none;overflow:hidden;
+  display:flex;align-items:center;justify-content:center}
+#ava img{width:100%;height:100%;object-fit:cover}
+#uname{font-size:15px;color:#e8e8f0}
+#ustate{font-size:11px;color:#5a5a6a;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+#back{margin-left:auto;color:#555;font-size:12px;padding:6px 10px;border:1px solid #222;border-radius:14px}
+#chat{flex:1;overflow-y:auto;padding:10px 14px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.bub{max-width:78%;margin:7px 0;padding:9px 13px;border-radius:16px;font-size:15px;line-height:1.65;
+  animation:pop .25s;word-break:break-word;white-space:pre-wrap}
+.her{background:#1e1a2e;color:#cfc4f2;border-bottom-left-radius:4px}
+.me{background:#2b2b3c;color:#b8b8c8;margin-left:auto;border-bottom-right-radius:4px}
+.sys{max-width:100%;text-align:center;color:#4a6a4a;font-size:12px;background:#0f150f;border-radius:8px;padding:6px 10px;margin:10px 0}
+.imgmsg{background:#15151f;border-radius:14px;padding:6px;max-width:220px}
+.imgmsg img{width:100%;border-radius:9px;display:block}
+.imgmsg .cap{font-size:11px;color:#666;text-align:center;padding:4px 0 2px;letter-spacing:1px}
+.sticker{max-width:78%;margin:7px 0;background:transparent;text-align:center}
+.sticker img{width:88px;height:88px;animation:pop .3s}
+.sticker .cap{display:block;font-size:12px;color:#7a6a9a;margin-top:4px}
+.pic{position:relative;max-width:220px}
+.pic.half img{clip-path:inset(0 50% 0 0)}
+.pic.half::after{content:"另一半·不在";position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  font-size:10px;color:#444;writing-mode:vertical-rl;letter-spacing:3px}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1}}
+#read{font-size:10px;color:#555;text-align:right;margin:-2px 2px 6px;min-height:14px}
+#inrow{display:flex;gap:8px;padding:10px 12px 14px;background:#101018;border-top:1px solid #1c1c28}
+#inp{flex:1;background:#1a1a26;border:1px solid #2a2a3a;color:#e0e0e8;border-radius:20px;
+  padding:11px 16px;font-size:15px;outline:none;font-family:inherit}
+#send{background:#a78bfa;color:#16121f;border:none;border-radius:20px;padding:0 22px;font-size:15px;font-weight:600}
+#termBtn{position:fixed;right:12px;bottom:80px;background:#0d1a0d;border:1px solid #1a3a1a;color:#3a6a3a;
+  border-radius:16px;padding:6px 14px;font-size:11px;font-family:Menlo,monospace;z-index:6}
+#term{position:fixed;left:0;right:0;bottom:0;height:46vh;background:#040704;border-top:1px solid #1a3a1a;
+  display:none;z-index:5;flex-direction:column;font-family:Menlo,monospace}
+#termHead{padding:6px 12px;font-size:10px;color:#2e5a2e;border-bottom:1px solid #0c1a0c;display:flex;justify-content:space-between}
+#termOut{flex:1;overflow-y:auto;padding:8px 12px;font-size:12px;line-height:1.8;color:#2e8b2e;white-space:pre-wrap;word-break:break-all}
+#termOut .d{color:#3a3a5a}#termOut .w{color:#8b8b2e}#termOut .e{color:#8b2e2e}
+#termIn{display:flex;border-top:1px solid #0c1a0c}
+#termIn input{flex:1;background:transparent;border:none;color:#4ab04a;padding:10px 12px;font-family:Menlo,monospace;font-size:13px;outline:none}
+#hist{position:fixed;inset:0;background:#0b0b12;z-index:10;display:none;flex-direction:column}
+#histTop{padding:14px;text-align:center;color:#a78bfa;font-size:14px;border-bottom:1px solid #1c1c28;background:#101018}
+#histBody{flex:1;overflow-y:auto;padding:14px}
+#histBody .bub{margin:6px 0}
+#histBody .hd{font-size:11px;color:#555;text-align:center;margin:16px 0 4px}
+#flash{position:fixed;inset:0;background:#fff;z-index:90;display:none;opacity:.9}
+#scare{position:fixed;inset:0;background:#050005;z-index:95;display:none;align-items:center;justify-content:center}
+#scare div{font-size:34px;color:#fff;font-family:serif;letter-spacing:6px}
+#scare img{position:absolute;width:100%;opacity:.25;filter:grayscale(1) contrast(2)}
+#ov{position:fixed;inset:0;background:rgba(3,3,8,.96);z-index:99;display:none;flex-direction:column;
+  align-items:center;justify-content:center;padding:36px;text-align:center;line-height:2.1}
+#ovEnd{font-size:24px;color:#a78bfa;letter-spacing:5px;margin-bottom:8px}
+#ovTxt{font-size:13px;color:#8a8a96;max-width:340px}
+#ov button{margin-top:28px;background:#a78bfa;color:#16121f;border:none;padding:11px 34px;border-radius:8px;font-size:15px;font-family:inherit;font-weight:600}
+.shake{animation:sh .08s infinite}
+@keyframes sh{0%{transform:translate(3px,0)}25%{transform:translate(-4px,2px)}50%{transform:translate(2px,-3px)}75%{transform:translate(-2px,3px)}}
+.glitch{filter:invert(1) hue-rotate(120deg)}
+.crt::after{content:"";position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.15) 2px 4px)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <div id="ava"></div>
+    <div><div id="uname">???</div><div id="ustate">正在连接…</div></div>
+    <button id="back">聊天记录</button>
+  </div>
+  <div id="chat"></div>
+  <div id="read"></div>
+  <div id="inrow"><input id="inp" autocomplete="off" placeholder=""><button id="send">↑</button></div>
+</div>
+<button id="termBtn">terminal</button>
+<div id="term">
+  <div id="termHead"><span
